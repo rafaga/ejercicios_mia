@@ -29,11 +29,13 @@ Nunca pudo encointrar el camino que cumpliera con als caracteristicas reqeuridas
 | DLS lim 2 |                                                                 |         |        |  3 nodes  | **cut-off** |
 | DLS lim 4 | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova                | 4 roads | 441 km |  6 nodes  | success     |
 | IDS       | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova                | 4 roads | 441 km |  16 nodes | success     |
-|-----------|-----------------------------------------------------------------|---------|--------|-----------|-------------|
 
 ## Subgrafos seleccionados por los algoritmos
 
+### DFS
 ![DFS](./dfs.svg)
+
+### El resto de los algoritmos exitosos
 ![BFS, UCS, DLS e IDS](./all.svg)
 
 ## Evidencia de Ejecución
