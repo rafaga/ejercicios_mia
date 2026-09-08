@@ -4,9 +4,9 @@ para este ejercicio se eligio la Pareja **Zerind** y **Craiova**
 
 ## Pregunta del Ejercicio
 
-- ¿Greedy y A* devolvieron el **mismo** camino o no, y por qué?
+- ¿A* encontró el camino de **menos km**? ¿Greedy coincidió o se desvió?
 
-Si devuelven lo mismo pero por razones distintas, Greedy hizo 4 expansiones y acertó por que la información heurística le favorecia, pero verificó si otra ruta con más g inicial pero mejor f total podía ser más corta. A* hizo 7 expansiones porque insistió en confirmar que ningún nodo pendiente (`Pitesti`) pudiera aún abrir un camino más barato, antes de aceptar `Craiova` como solución.
+Si devuelven lo mismo pero por razones distintas, Greedy hizo 4 expansiones y acertó por que la información heurística le favorecia, pero verificó si otra ruta con más g inicial pero mejor f total podía ser más corta. A* hizo 7 expansiones porque insistió en confirmar que ningún nodo pendiente pudiera tener un camino más barato, antes de aceptar `Craiova` como solución.
 
 - qué heurística se usó (tabla AIMA vs. euclidiana);
 euclidiana
@@ -15,12 +15,18 @@ euclidiana
 
 Al llegar al 4to punto Greedy ve directamente a a `Craiova` y directamente asume que es la ruta mas cercana por la heuristica de las distancias euclidianas Y AStar decide verificar en otro nodo a ver si se enucntra una mejor ruta (`Pitesti`) y al no encontrar una distancia mas corta entonces asume que el camino `Craiova` que encontro en `Rimnicu Vilcea` era la mas corta.
 
+- ¿Por qué Greedy puede devolver un camino más caro aunque `h` sea admisible?
+
+Por que al solo al seguir las metricas de heuristica, no sabe cuanto ya se acumulo en camino previo, esto puede ocasionar que un camino aparentemente mas barato acumule mas distancia al final, por lo que pudiera existir un camino aparentemente mas caro pero mas directo.
+
+- En el camino de A*, ¿`f` tiende a **no disminuir** a lo largo de la ruta? Relaciónalo con que `h` sea consistente (en particular si el destino es Bucharest y se usa la tabla AIMA).
+
 ## Tabla comparativa
 
-| Algorithm | Path                                                 | Depth | Cost | Expanded |
-|-----------|------------------------------------------------------|-------|------|----------|
-| Greedy    | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   4      |
-| A* Search | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   7      |
+| Algorithm | Path                                                 | Depth | Cost | Expanded | heuristica |
+|-----------|------------------------------------------------------|-------|------|----------|------------|
+| Greedy    | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   4      | euclidiana |
+| A* Search | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   7      | euclidiana |
 
 ## Subgrafos seleccionados por los algoritmos
 
