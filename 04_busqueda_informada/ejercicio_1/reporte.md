@@ -19,10 +19,10 @@ Y AStar decide verificar en otro nodo a ver si se enucntra una mejor ruta (Orade
 
 ## Tabla comparativa
 
-| Algorithm | Path                                                            |
-|-----------|-----------------------------------------------------------------|
-| Greedy    | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova                |
-| A* Search | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova                |
+| Algorithm | Path                                                 | Depth | Cost | Expanded |
+|-----------|------------------------------------------------------|-------|------|----------|
+| Greedy    | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   4      |
+| A* Search | Zerind → Arad → Sibiu → Rimnicu Vilcea → Craiova     |   4   | 441  |   7      |
 
 ## Subgrafos seleccionados por los algoritmos
 
