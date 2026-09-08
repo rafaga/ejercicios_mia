@@ -17,24 +17,30 @@ Sibiu: "Sibiu\n(h=175)"
 Rimnicu: "Rimnicu Vilcea\n(h=124)"
 Craiova: "Craiova\n(h=0)"
 Zerind: "Zerind\n(h=283)"
-
-# Oradea : "Oradea\n(h=308)"
+Oradea : "Oradea\n(h=308)"
 Fagaras: "Fagaras\n(h=169)"
 Pitesti: "Pitesti\n(h=104)"
+Arad: "Arad\n(h=260)"
+Timisoara: "Timisoara\n(h=200)"
+Lugoj: "Lugoj\n(h=127)"
 
 Arad.class: camino
 Sibiu.class: camino
 Rimnicu.class: camino
 Craiova.class: camino
 Zerind.class: camino
-# Oradea.class: explorado
-Fagaras.class: explorado
+Oradea.class: explorado
+# Fagaras.class: explorado
 Pitesti.class: explorado
+Timisoara.class: explorado
+Lugoj.class:explorado
 
 Arad -- Sibiu: 140 km {
   class: camino
 }
-Arad -- Timisoara: 118 km
+Arad -- Timisoara: 118 km {
+   class: explorado
+}
 Arad -- Zerind: 75 km {
   class: camino
 }
@@ -43,9 +49,7 @@ Bucharest -- Giurgiu: 90 km
 Bucharest -- Pitesti: 101 km
 Bucharest -- Urziceni: 85 km
 Craiova -- Drobeta: 120 km
-Craiova -- Pitesti: 138 km {
-   class: explorado
-}
+Craiova -- Pitesti: 138 km 
 Craiova -- Rimnicu: 146 km {
   class: camino
 }
@@ -57,14 +61,18 @@ Fagaras -- Sibiu: 99 km {
 Hirsova -- Urziceni: 98 km
 Iasi -- Neamt: 87 km
 Iasi -- Vaslui: 92 km
-Lugoj -- Mehadia: 70 km
-Lugoj -- Timisoara: 111 km
-Oradea -- Sibiu: 151 km #{
-#   class: explorado
-#}
-Oradea -- Zerind: 71 km #{
-#   class: explorado
-#}
+Lugoj -- Mehadia: 70 km {
+   class: explorado
+}
+Lugoj -- Timisoara: 111 km {
+   class: explorado
+}
+Oradea -- Sibiu: 151 km {
+   class: explorado
+}
+Oradea -- Zerind: 71 km {
+   class: explorado
+}
 Pitesti -- Rimnicu: 97 km {
    class: explorado
 }
