@@ -7,7 +7,7 @@ para este ejercicio se eligio la Pareja **Zerind** y **Craiova**
 - ¿Greedy y A* devolvieron el **mismo** camino o no, y por qué?
 
 Si devuelven lo mismo pero por razones distintas, Greedy hizo 4 expansiones y acertó por suerte del heurístico: nunca verificó si otra ruta con más g inicial pero mejor f total podía ser más corta.
-A* hizo 6 expansiones porque insistió en confirmar que ningún nodo pendiente (Oradea) pudiera aún abrir un camino más barato, antes de aceptar Craiova como solución.
+A* hizo 6 expansiones porque insistió en confirmar que ningún nodo pendiente (`Pitesti`) pudiera aún abrir un camino más barato, antes de aceptar `Craiova` como solución.
 
 - qué heurística se usó (tabla AIMA vs. euclidiana);
 euclidiana
