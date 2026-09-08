@@ -161,4 +161,3 @@ python 04_a_star_search.py           --from-city ORIGEN --to DESTINO
   el costo, guiado por `h`.
 - Los nombres de ciudad deben coincidir **exactamente** (p. ej.
   `Rimnicu Vilcea`, no `Rimnicu`).
-

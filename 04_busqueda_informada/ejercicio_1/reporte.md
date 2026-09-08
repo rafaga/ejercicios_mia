@@ -13,9 +13,8 @@ A* hizo 6 expansiones porque insistió en confirmar que ningún nodo pendiente (
 euclidiana
 
 - en al menos un punto de decisión, cómo `h(n)` (Greedy) frente a `f(n) = g(n) + h(n)` (A*) explica la ciudad que cada algoritmo expandió.
-Al llegar al 4to punto Greedy ve directamente a a Craiova y directamente asume que es la ruta mas cercana sin verificarla por la heuristica de las distancias euclidianas
 
-Y AStar decide verificar en otro nodo a ver si se enucntra una mejor ruta (Oradea) y al no encontrar una distancia mas corta entonces asume que el camino Craiova que encontro en Rimnicu Vilcea era la mas corta.
+Al llegar al 4to punto Greedy ve directamente a a `Craiova` y directamente asume que es la ruta mas cercana por la heuristica de las distancias euclidianas Y AStar decide verificar en otro nodo a ver si se enucntra una mejor ruta (`Pitesti`) y al no encontrar una distancia mas corta entonces asume que el camino `Craiova` que encontro en `Rimnicu Vilcea` era la mas corta.
 
 ## Tabla comparativa
 
@@ -26,7 +25,13 @@ Y AStar decide verificar en otro nodo a ver si se enucntra una mejor ruta (Orade
 
 ## Subgrafos seleccionados por los algoritmos
 
-![DFS](./map.svg)
+### Greedy
+
+![Greedy](./greedy.svg)
+
+### A-Star
+
+![A-Star](./astar.svg)
 
 ## Evidencia de Ejecución
 
