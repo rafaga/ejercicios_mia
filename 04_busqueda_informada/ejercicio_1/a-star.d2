@@ -12,6 +12,35 @@ classes: {
   }
 }
 
+Leyenda: {
+  near: bottom-right
+  grid-columns: 2
+  horizontal-gap: 10
+  vertical-gap: 8
+
+  sw1: "" {
+    shape: square
+    width: 20
+    height: 20
+    class: camino
+  }
+  "Camino óptimo (441 km)": {
+    shape: text
+    style.font-size: 14
+  }
+
+  sw2: "" {
+    shape: square
+    width: 20
+    height: 20
+    class: explorado
+  }
+  "Explorado, no elegido": {
+    shape: text
+    style.font-size: 14
+  }
+}
+
 Arad: "Arad\n(h=260)" 
 Sibiu: "Sibiu\n(h=175)"
 Rimnicu: "Rimnicu Vilcea\n(h=124)"
