@@ -31,22 +31,42 @@ test("GeoGraph: order, size and degrees match the JSON metadata", () => {
   assert.equal(total, 2 * 2565);
 });
 
-test("resolveCity: duplicate names are flagged, never silent", () => {
-  const puebla = graph.resolveCity("Puebla");
-  assert.equal(puebla.ambiguous, true);
-  assert.equal(puebla.node.id, 4);
-  assert.equal(puebla.node.state, "Puebla");
-  assert.ok(puebla.note && puebla.note.includes("Puebla"));
+test("resolveCity: repeated names are never assumed — they throw listing the matches", () => {
+  assert.throws(() => graph.resolveCity("Puebla"), (err) => {
+    assert.ok(err instanceof MA.CityResolutionError);
+    assert.equal(err.candidates.length, 2);
+    assert.match(err.message, /'Puebla' matches 2 cities/);
+    assert.match(err.message, /Puebla, Puebla \(id 4, population 1,434,062\)/);
+    assert.match(err.message, /Puebla, Baja California \(id 580, population 15,168\)/);
+    assert.match(err.message, /disambiguate with 'City, State' or '#id'/);
+    return true;
+  });
 
-  const guadalupe = graph.resolveCity("Guadalupe");
-  assert.equal(guadalupe.ambiguous, true);
-  assert.equal(guadalupe.node.id, 22);
-  assert.equal(guadalupe.node.state, "Nuevo León");
+  assert.throws(() => graph.resolveCity("Guadalupe"), (err) => {
+    assert.equal(err.candidates.length, 2);
+    return true;
+  });
 
   const byState = graph.resolveCity("Guadalupe", { state: "Zacatecas" });
-  assert.equal(byState.ambiguous, false);
   assert.equal(byState.node.id, 111);
   assert.equal(byState.note, null);
+
+  const byId = graph.resolveCity("#580");
+  assert.equal(byId.node.id, 580);
+  assert.equal(byId.node.state, "Baja California");
+
+  const byId2 = graph.resolveCity("#4");
+  assert.equal(byId2.node.id, 4);
+  assert.equal(byId2.node.state, "Puebla");
+});
+
+test("resolveCity: bad, unknown, or same-state-duplicate ids throw clean errors", () => {
+  assert.throws(() => graph.resolveCity("#9999"), /Unknown city id 9999 \(valid ids: 0-999\)/);
+  assert.throws(() => graph.resolveCity("#abc"), /Invalid id '#abc': use '#<number>'/);
+  assert.throws(
+    () => graph.resolveCity("El Salto", { state: "Jalisco" }),
+    (err) => err.candidates.length === 2 && /matches 2 cities/.test(err.message)
+  );
 });
 
 test("resolveCity: unknown names throw with accent-folded suggestions", () => {

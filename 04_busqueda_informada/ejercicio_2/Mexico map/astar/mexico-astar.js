@@ -87,6 +87,10 @@
       .trim();
   }
 
+  function fmtInt(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
   class GeoGraph {
     constructor(payload) {
       const nodes = payload && payload.nodes;
@@ -102,6 +106,9 @@
           throw new RangeError("duplicate node id: " + n.id);
         }
         this.nodesById.set(n.id, n);
+        if (typeof n.id === "number" && (this.maxId === undefined || n.id > this.maxId)) {
+          this.maxId = n.id;
+        }
         this.adjacency.set(n.id, []);
       }
       this.edgeCount = edges.length;
@@ -156,6 +163,9 @@
 
     resolveCity(name, options) {
       const state = options && options.state ? String(options.state).trim() : null;
+      if (typeof name === "string" && name.charAt(0) === "#") {
+        return this._resolveById(name);
+      }
       const exact = this.citiesByName.get(name) || [];
       if (exact.length === 0) {
         const fold = foldName(name);
@@ -189,18 +199,39 @@
           );
         }
       }
-      const sorted = candidates.slice().sort(function (a, b) {
+      if (candidates.length > 1) {
+        throw new CityResolutionError(this._ambiguousMessage(name, candidates), candidates);
+      }
+      return { node: candidates[0], candidates: candidates, note: null };
+    }
+
+    _resolveById(spec) {
+      const text = String(spec).slice(1).trim();
+      if (!/^\d+$/.test(text)) {
+        throw new CityResolutionError("Invalid id '" + spec + "': use '#<number>'");
+      }
+      const node = this.nodesById.get(Number(text));
+      if (!node) {
+        const range = this.maxId === undefined ? "" : " (valid ids: 0-" + this.maxId + ")";
+        throw new CityResolutionError("Unknown city id " + text + range);
+      }
+      return { node: node, candidates: [node], note: null };
+    }
+
+    _ambiguousMessage(name, candidates) {
+      const ranked = candidates.slice().sort(function (a, b) {
         return (b.population || 0) - (a.population || 0) || a.id - b.id;
       });
-      const chosen = sorted[0];
-      const ambiguous = sorted.length > 1;
-      const note = ambiguous
-        ? "'" + name + "' matches " + sorted.length + " cities (" +
-            sorted.map(function (n) { return n.state; }).join(", ") +
-            "); using the most populous: " + chosen.name + ", " + chosen.state +
-            " (id " + chosen.id + "). Pass a state to disambiguate."
-        : null;
-      return { node: chosen, ambiguous: ambiguous, candidates: sorted, note: note };
+      const lines = ["'" + name + "' matches " + ranked.length + " cities:"];
+      for (const n of ranked.slice(0, 10)) {
+        lines.push(
+          "  - " + n.name + ", " + n.state +
+            " (id " + n.id + ", population " + fmtInt(n.population || 0) + ")"
+        );
+      }
+      if (ranked.length > 10) lines.push("  ... and " + (ranked.length - 10) + " more");
+      lines.push("disambiguate with 'City, State' or '#id'.");
+      return lines.join("\n");
     }
   }
 

@@ -27,9 +27,10 @@ Enter). The route is painted on the map: green edges and nodes, blue origin,
 red destination, with the rest of the graph dimmed. The panel reports the
 **cost in km**, **depth in hops**, **nodes expanded**, and the heuristic used.
 
-- Repeated city names (~39, e.g. `Puebla`, `Guadalupe`) are never resolved in
-  silence: the most populous match is used and a warning is shown. Type
-  `City, State` — e.g. `Puebla, Baja California` — to pick a specific one.
+- Repeated city names (~39, e.g. `Puebla`, `Guadalupe`) are never assumed: the
+  search stops and lists every match with its id and population. Type
+  `City, State` — e.g. `Puebla, Baja California` — or `#id` — e.g. `#580` — to
+  pick a specific one (same policy as the Python CLI).
 - Clicking a node fills the origin field first, then the destination.
 - Unknown names show accent-folded suggestions (`Cancun` → `Cancún`).
 

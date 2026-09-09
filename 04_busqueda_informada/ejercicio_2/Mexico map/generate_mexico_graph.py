@@ -375,7 +375,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       background: transparent;
       color: var(--accent);
     }
-    .warn { margin: 0; font-size: 12px; line-height: 1.45; color: #8a3312; }
+    .warn { margin: 0; font-size: 12px; line-height: 1.45; color: #8a3312; white-space: pre-line; }
     .result { display: flex; flex-direction: column; gap: 4px; }
     .rrow { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
     .rrow span { color: var(--muted); }
@@ -625,14 +625,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       show(i >= 0 ? G.nodes[i] : null);
     }
 
+    const nameCounts = new Map();
+    const nameStateCounts = new Map();
+    G.nodes.forEach(n => {
+      nameCounts.set(n.name, (nameCounts.get(n.name) || 0) + 1);
+      const key = n.name + "|" + n.state;
+      nameStateCounts.set(key, (nameStateCounts.get(key) || 0) + 1);
+    });
+    function cityInputValue(n) {
+      if (nameCounts.get(n.name) === 1) return n.name;
+      if (nameStateCounts.get(n.name + "|" + n.state) === 1) return n.name + ", " + n.state;
+      return "#" + n.id;
+    }
+
     nodeEls.forEach((el, i) => {
       el.addEventListener("mouseenter", () => highlight(i));
       el.addEventListener("mouseleave", () => highlight(-1));
       el.addEventListener("click", () => {
         if (!document.getElementById("from").value.trim()) {
-          document.getElementById("from").value = G.nodes[i].name;
+          document.getElementById("from").value = cityInputValue(G.nodes[i]);
         } else {
-          document.getElementById("to").value = G.nodes[i].name;
+          document.getElementById("to").value = cityInputValue(G.nodes[i]);
         }
       });
     });
@@ -660,9 +673,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
     document.getElementById("q").addEventListener("input", applyFilter);
     stateSel.addEventListener("change", applyFilter);
-    document.getElementById("labels").addEventListener("change", e => {
-      labelLayer.style.display = e.target.checked ? "" : "none";
-    });
+    const labelsChk = document.getElementById("labels");
+    function applyLabelVisibility() {
+      labelLayer.style.display = labelsChk.checked ? "" : "none";
+    }
+    labelsChk.addEventListener("change", applyLabelVisibility);
+    applyLabelVisibility();
 
     const cityGraph = new MexicoAstar.GeoGraph({ nodes: G.nodes, edges: G.edges });
     const fromIn = document.getElementById("from");
@@ -671,12 +687,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     const routeResult = document.getElementById("rresult");
 
     const datalist = document.getElementById("cities");
-    const seenNames = new Set();
     G.nodes.forEach(n => {
-      if (seenNames.has(n.name)) return;
-      seenNames.add(n.name);
       const o = document.createElement("option");
-      o.value = n.name;
+      o.value = cityInputValue(n);
+      if (o.value.charAt(0) === "#") o.textContent = n.name + ", " + n.state;
       datalist.appendChild(o);
     });
 
@@ -737,7 +751,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const fromSpec = parseCityInput(fromIn.value);
       const toSpec = parseCityInput(toIn.value);
       if (!fromSpec.name || !toSpec.name) {
-        routeWarn.textContent = "Enter both an origin and a destination. Tip: 'City, State' disambiguates repeated names.";
+        routeWarn.textContent = "Enter both an origin and a destination. Tip: 'City, State' or '#id' disambiguates repeated names.";
         routeWarn.hidden = false;
         paint();
         return;
@@ -747,14 +761,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       catch (err) { routeWarn.textContent = err.message; routeWarn.hidden = false; paint(); return; }
       try { toRes = cityGraph.resolveCity(toSpec.name, { state: toSpec.state }); }
       catch (err) { routeWarn.textContent = err.message; routeWarn.hidden = false; paint(); return; }
-
-      const notes = [];
-      if (fromRes.note) notes.push("Origin — " + fromRes.note);
-      if (toRes.note) notes.push("Destination — " + toRes.note);
-      if (notes.length) {
-        routeWarn.textContent = notes.join(" ");
-        routeWarn.hidden = false;
-      }
 
       const t0 = performance.now();
       const result = MexicoAstar.findRoute(cityGraph, fromRes.node.id, toRes.node.id, { heuristic: "haversine" });
