@@ -2,7 +2,7 @@
 
 A geographic graph of Mexico: **1,000 cities** pinned to real latitude/longitude, linked by proximity rather than a force-directed layout.
 
-Open [`mexico_map.html`](mexico_map.html) in a browser to explore it. Search a city, filter by state, hover a node for its neighborhood, and pan/zoom the map. Circle size is log population.
+Open [`mexico_map.html`](mexico_map.html) in a browser to explore it. Search a city, filter by state, hover a node for its neighborhood, pan/zoom the map, and find the minimum-km route between two cities with **A\*** — everything runs in the browser. Circle size is log population.
 
 | | |
 | --- | --- |
@@ -20,7 +20,69 @@ Open [`mexico_map.html`](mexico_map.html) in a browser to explore it. Search a c
 
 Layout is longitude × latitude, not a scramble.
 
+## Route search (A*)
+
+In the map, type an origin and a destination and press **Find route** (or hit
+Enter). The route is painted on the map: green edges and nodes, blue origin,
+red destination, with the rest of the graph dimmed. The panel reports the
+**cost in km**, **depth in hops**, **nodes expanded**, and the heuristic used.
+
+- Repeated city names (~39, e.g. `Puebla`, `Guadalupe`) are never resolved in
+  silence: the most populous match is used and a warning is shown. Type
+  `City, State` — e.g. `Puebla, Baja California` — to pick a specific one.
+- Clicking a node fills the origin field first, then the destination.
+- Unknown names show accent-folded suggestions (`Cancun` → `Cancún`).
+
+### How it works
+
+`astar/mexico-astar.js` is a dependency-free browser library (classic
+`<script>` tag, global `MexicoAstar`) that runs A* over the same graph JSON
+embedded in the HTML — no server, no build step:
+
+| Piece | Detail |
+| --- | --- |
+| State | city `id` (integer, unambiguous even with repeated names) |
+| Actions / cost | go to a neighbor; `edges[].km`, undirected (valid both ways) |
+| Heuristic | `h(n)` = haversine straight-line km from `n` to the destination (port of `haversine` in `generate_mexico_graph.py`) |
+| Search | frontier ordered by `f(n) = g(n) + h(n)` (binary min-heap, lazy deletion); goal test on expansion |
+
+`h` never overestimates: edge costs are haversine distances too, so the
+triangle inequality keeps the heuristic admissible and A* returns
+minimum-km routes.
+
+Main entry points: `new MexicoAstar.GeoGraph({ nodes, edges })` and
+`MexicoAstar.findRoute(graph, fromId, toId, { heuristic })`, plus a generic
+`MexicoAstar.astarSearch({ start, isGoal, successors, h })`. Pass
+`heuristic: "zero"` to get uniform-cost search (Dijkstra) for comparison.
+
+### Verified pairs
+
+A* and UCS return the same cost; A* expands fewer nodes:
+
+| Route | Cost | Hops | A* expanded | UCS expanded |
+| --- | --- | --- | --- | --- |
+| Tijuana → Cancún | 4,528.20 km | 125 | 949 | 998 |
+| Mexico City → Monterrey | 1,041.87 km | 27 | 428 | 783 |
+| Guadalajara → Mérida | 1,984.75 km | 70 | 736 | 955 |
+| Hermosillo → Oaxaca | 2,361.45 km | 62 | 408 | 821 |
+
+### Tests
+
+The library itself uses no Node APIs; the tests only exercise its logic with
+Node's built-in test runner (9 tests, no dependencies):
+
+```bash
+node --test astar/test/
+```
+
 ## Regenerating
+
+The A* route UI and its styles (including the commented-out height tweaks)
+are part of `HTML_TEMPLATE` in the script, so `mexico_map.html` can be
+regenerated without losing them — the template currently reproduces the map
+byte-for-byte as long as `data/cities1000.txt` is unchanged. One requirement:
+keep `astar/mexico-astar.js` next to the HTML; the map loads it with a
+relative `<script>` tag and the generator does not inline it.
 
 Python 3, no extra packages for the graph and HTML:
 
@@ -31,7 +93,8 @@ python3 generate_mexico_graph.py
 That writes:
 
 - `mexico_cities_graph.json` — nodes, edges, coast outline, and metadata
-- `mexico_map.html` — self-contained interactive map (graph JSON inlined)
+- `mexico_map.html` — interactive map + A* route search (graph JSON inlined; loads `astar/mexico-astar.js`)
+- `mexico_adjacency_matrix.json` — dense 0/1 adjacency matrix
 
 Optional static PNG (needs matplotlib):
 
@@ -46,7 +109,9 @@ Writes `mexico_graph_preview.png` from the current graph JSON.
 ```
 generate_mexico_graph.py   build graph, HTML, and adjacency matrix
 emit_viz.py                PNG preview from mexico_cities_graph.json
-mexico_map.html            interactive map
+mexico_map.html            interactive map + A* route search
+astar/mexico-astar.js      browser A* library (haversine, GeoGraph, findRoute)
+astar/test/astar.test.js   library tests (node --test astar/test/)
 mexico_cities_graph.json   graph payload
 data/cities1000.txt        GeoNames dump (CC-BY 3.0)
 data/mexico.geojson        country outline

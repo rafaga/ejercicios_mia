@@ -300,7 +300,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       --accent: #1f4d3a;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+    html, body { margin: 0; /*height: 100%;*/ background: var(--bg); color: var(--ink); }
     body {
       font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
       display: grid;
@@ -352,8 +352,37 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .city p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.4; }
     .legend { font-size: 12px; color: var(--muted); line-height: 1.45; }
     .swatch { display: inline-block; width: 8px; height: 8px; background: var(--node); border-radius: 50%; margin-right: 6px; }
+    .route {
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .route h2 { margin: 0; font-size: 16px; }
+    .routebar { display: flex; gap: 8px; }
+    button {
+      flex: 1;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fffaf2;
+      padding: 8px 10px;
+      font: 600 13px ui-sans-serif, "Helvetica Neue", sans-serif;
+      cursor: pointer;
+    }
+    button.ghost {
+      flex: 0 0 auto;
+      background: transparent;
+      color: var(--accent);
+    }
+    .warn { margin: 0; font-size: 12px; line-height: 1.45; color: #8a3312; }
+    .result { display: flex; flex-direction: column; gap: 4px; }
+    .rrow { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+    .rrow span { color: var(--muted); }
+    .rrow b { font-variant-numeric: tabular-nums; text-align: right; }
+    [hidden] { display: none !important; }
     main { position: relative; overflow: hidden; }
-    svg { width: 100%; height: 100vh; display: block; cursor: grab; }
+    svg { width: 100%; /*height: 100vh;*/ display: block; cursor: grab; }
     svg.dragging { cursor: grabbing; }
     text.lbl {
       font: 600 11px ui-sans-serif, "Helvetica Neue", sans-serif;
@@ -395,16 +424,36 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <input id="labels" type="checkbox" checked />
       <label for="labels" style="margin:0">Label the largest cities</label>
     </div>
+    <div class="route">
+      <h2>Route · A*</h2>
+      <div>
+        <label for="from">Origin</label>
+        <input id="from" type="search" placeholder="e.g. Tijuana" autocomplete="off" list="cities" />
+      </div>
+      <div>
+        <label for="to">Destination</label>
+        <input id="to" type="search" placeholder="e.g. Cancún" autocomplete="off" list="cities" />
+      </div>
+      <datalist id="cities"></datalist>
+      <div class="routebar">
+        <button id="find" type="button">Find route</button>
+        <button id="clear" type="button" class="ghost">Clear</button>
+      </div>
+      <p class="warn" id="rwarn" hidden></p>
+      <div class="result" id="rresult" hidden></div>
+    </div>
     <div class="city" id="detail">
       <h2>Hover a node</h2>
       <p>Circle size is log population. Edges are 4-nearest neighbors plus a few MST bridges so remote towns stay connected.</p>
     </div>
-    <p class="legend"><span class="swatch"></span>Node = city · line = proximity edge<br>Layout is longitude × latitude, not a force-directed scramble.</p>
+    <p class="legend"><span class="swatch"></span>Node = city · line = proximity edge<br>Layout is longitude × latitude, not a force-directed scramble.<br>Find route runs A* here in the browser: green = route, blue = origin, red = destination.</p>
     <p class="source" id="source"></p>
   </aside>
   <main>
     <svg id="map" viewBox="0 0 1100 720" role="img" aria-label="Map graph of Mexico"></svg>
   </main>
+  <!-- A* route search (also part of HTML_TEMPLATE in generate_mexico_graph.py): loads astar/mexico-astar.js with a classic script tag so the map works even when opened from disk (file://). -->
+  <script src="astar/mexico-astar.js"></script>
   <script>
     const G = __GRAPH_JSON__;
     const svg = document.getElementById("map");
@@ -527,24 +576,52 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     let active = -1;
-    function highlight(i) {
-      active = i;
+    let route = null;
+
+    function edgeKey(a, b) { return a < b ? a + "-" + b : b + "-" + a; }
+
+    function paint() {
+      const i = active;
+      const onRoute = !!route;
       const neighbors = new Set();
       edgeEls.forEach(el => {
-        const hit = i >= 0 && (el.dataset.s == i || el.dataset.t == i);
-        el.setAttribute("stroke", hit ? "#1f4d3a" : "#8a7d6b");
-        el.setAttribute("stroke-opacity", i < 0 ? "0.45" : (hit ? "0.95" : "0.08"));
-        el.setAttribute("stroke-width", hit ? "1.8" : "0.9");
-        if (hit) {
-          neighbors.add(+el.dataset.s);
-          neighbors.add(+el.dataset.t);
+        const s = +el.dataset.s, t = +el.dataset.t;
+        const inRoute = onRoute && route.edgeKeys.has(edgeKey(s, t));
+        const hit = i >= 0 && (s === i || t === i);
+        if (hit) { neighbors.add(s); neighbors.add(t); }
+        if (inRoute) {
+          el.setAttribute("stroke", "#15803d");
+          el.setAttribute("stroke-opacity", "0.95");
+          el.setAttribute("stroke-width", "2.4");
+        } else if (hit) {
+          el.setAttribute("stroke", "#1f4d3a");
+          el.setAttribute("stroke-opacity", "0.95");
+          el.setAttribute("stroke-width", "1.8");
+        } else {
+          el.setAttribute("stroke", "#8a7d6b");
+          el.setAttribute("stroke-opacity", (onRoute || i >= 0) ? "0.08" : "0.45");
+          el.setAttribute("stroke-width", "0.9");
         }
       });
       nodeEls.forEach((el, idx) => {
         const on = i < 0 || idx === i || neighbors.has(idx);
-        el.setAttribute("fill", idx === i ? "#1f4d3a" : "#9a3412");
-        el.setAttribute("fill-opacity", on ? "0.95" : "0.12");
+        const inRoute = onRoute && route.nodeIds.has(idx);
+        const isOrigin = onRoute && idx === route.result.path[0];
+        const isDest = onRoute && idx === route.result.path[route.result.path.length - 1];
+        let fill = "#9a3412";
+        if (isOrigin) fill = "#1d4ed8";
+        else if (isDest) fill = "#b91c1c";
+        else if (inRoute) fill = "#15803d";
+        else if (idx === i) fill = "#1f4d3a";
+        el.setAttribute("fill", fill);
+        el.setAttribute("fill-opacity",
+          (inRoute || on) ? ((i < 0 && !onRoute) ? "0.88" : "0.95") : "0.12");
       });
+    }
+
+    function highlight(i) {
+      active = i;
+      paint();
       show(i >= 0 ? G.nodes[i] : null);
     }
 
@@ -552,7 +629,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       el.addEventListener("mouseenter", () => highlight(i));
       el.addEventListener("mouseleave", () => highlight(-1));
       el.addEventListener("click", () => {
-        document.getElementById("q").value = G.nodes[i].name;
+        if (!document.getElementById("from").value.trim()) {
+          document.getElementById("from").value = G.nodes[i].name;
+        } else {
+          document.getElementById("to").value = G.nodes[i].name;
+        }
       });
     });
 
@@ -582,6 +663,137 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     document.getElementById("labels").addEventListener("change", e => {
       labelLayer.style.display = e.target.checked ? "" : "none";
     });
+
+    const cityGraph = new MexicoAstar.GeoGraph({ nodes: G.nodes, edges: G.edges });
+    const fromIn = document.getElementById("from");
+    const toIn = document.getElementById("to");
+    const routeWarn = document.getElementById("rwarn");
+    const routeResult = document.getElementById("rresult");
+
+    const datalist = document.getElementById("cities");
+    const seenNames = new Set();
+    G.nodes.forEach(n => {
+      if (seenNames.has(n.name)) return;
+      seenNames.add(n.name);
+      const o = document.createElement("option");
+      o.value = n.name;
+      datalist.appendChild(o);
+    });
+
+    const endpointLabels = [0, 1].map(() => {
+      const t = document.createElementNS(NS, "text");
+      t.setAttribute("class", "lbl");
+      t.setAttribute("visibility", "hidden");
+      world.appendChild(t);
+      return t;
+    });
+
+    function setEndpointLabels(result) {
+      const ends = [
+        [result.pathNodes[0], "From: ", "#1d4ed8"],
+        [result.pathNodes[result.pathNodes.length - 1], "To: ", "#b91c1c"],
+      ];
+      ends.forEach(([n, prefix, color], k) => {
+        const t = endpointLabels[k];
+        const [x, y] = project(n.lon, n.lat);
+        t.setAttribute("x", (x + 7).toFixed(1));
+        t.setAttribute("y", (y + 4).toFixed(1));
+        t.textContent = prefix + n.name;
+        t.style.fill = color;
+        t.setAttribute("visibility", "visible");
+      });
+    }
+
+    function hideEndpointLabels() {
+      endpointLabels.forEach(t => t.setAttribute("visibility", "hidden"));
+    }
+
+    function parseCityInput(value) {
+      const raw = value.trim();
+      const comma = raw.lastIndexOf(",");
+      if (comma > 0) {
+        return { name: raw.slice(0, comma).trim(), state: raw.slice(comma + 1).trim() };
+      }
+      return { name: raw, state: null };
+    }
+
+    function resetRoutePanels() {
+      route = null;
+      hideEndpointLabels();
+      routeWarn.hidden = true;
+      routeResult.hidden = true;
+    }
+
+    function clearRoute() {
+      resetRoutePanels();
+      fromIn.value = "";
+      toIn.value = "";
+      paint();
+      show(active >= 0 ? G.nodes[active] : null);
+    }
+
+    function findRouteAction() {
+      resetRoutePanels();
+      const fromSpec = parseCityInput(fromIn.value);
+      const toSpec = parseCityInput(toIn.value);
+      if (!fromSpec.name || !toSpec.name) {
+        routeWarn.textContent = "Enter both an origin and a destination. Tip: 'City, State' disambiguates repeated names.";
+        routeWarn.hidden = false;
+        paint();
+        return;
+      }
+      let fromRes, toRes;
+      try { fromRes = cityGraph.resolveCity(fromSpec.name, { state: fromSpec.state }); }
+      catch (err) { routeWarn.textContent = err.message; routeWarn.hidden = false; paint(); return; }
+      try { toRes = cityGraph.resolveCity(toSpec.name, { state: toSpec.state }); }
+      catch (err) { routeWarn.textContent = err.message; routeWarn.hidden = false; paint(); return; }
+
+      const notes = [];
+      if (fromRes.note) notes.push("Origin — " + fromRes.note);
+      if (toRes.note) notes.push("Destination — " + toRes.note);
+      if (notes.length) {
+        routeWarn.textContent = notes.join(" ");
+        routeWarn.hidden = false;
+      }
+
+      const t0 = performance.now();
+      const result = MexicoAstar.findRoute(cityGraph, fromRes.node.id, toRes.node.id, { heuristic: "haversine" });
+      const ms = performance.now() - t0;
+
+      if (result.status !== "success") {
+        routeWarn.textContent = "No route found between those cities.";
+        routeWarn.hidden = false;
+        paint();
+        return;
+      }
+
+      route = {
+        result: result,
+        nodeIds: new Set(result.path),
+        edgeKeys: new Set(result.path.slice(0, -1).map((id, k) => edgeKey(id, result.path[k + 1]))),
+      };
+      setEndpointLabels(result);
+      paint();
+
+      const a = result.pathNodes[0];
+      const b = result.pathNodes[result.pathNodes.length - 1];
+      routeResult.innerHTML = [
+        ["From", a.name + " · " + a.state],
+        ["To", b.name + " · " + b.state],
+        ["Cost", fmt(result.cost) + " km"],
+        ["Depth", fmt(result.depth) + " hops"],
+        ["Expanded", fmt(result.expanded) + " nodes"],
+        ["Time", ms.toFixed(1) + " ms"],
+        ["Heuristic", "haversine straight-line to destination (admissible)"],
+      ].map(([k, v]) => `<div class="rrow"><span>${k}</span><b>${v}</b></div>`).join("");
+      routeResult.hidden = false;
+    }
+
+    document.getElementById("find").addEventListener("click", findRouteAction);
+    document.getElementById("clear").addEventListener("click", clearRoute);
+    [fromIn, toIn].forEach(el => el.addEventListener("keydown", e => {
+      if (e.key === "Enter") findRouteAction();
+    }));
 
     let panX = 0, panY = 0, zoom = 1, dragging = false, lastX = 0, lastY = 0;
     function applyView() {
