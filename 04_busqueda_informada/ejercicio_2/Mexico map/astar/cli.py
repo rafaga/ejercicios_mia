@@ -1,4 +1,8 @@
-"""Shared CLI and result printing for searches on the Mexico map."""
+"""Shared CLI and result printing for searches on the Mexico map.
+
+States are node ids (like the JS library); display names are only for input
+resolution and output printing.
+"""
 
 from __future__ import annotations
 
@@ -28,48 +32,54 @@ def search_parser(description: str) -> argparse.ArgumentParser:
     return parser
 
 
-def make_problem(start: str, goal: str) -> tuple[RouteFindingProblem, Callable[[str], float], str]:
+def make_problem(
+    start: str, goal: str
+) -> tuple[RouteFindingProblem, Callable[[int], float], str, dict[int, str]]:
     data = load_mexico()
     try:
-        start_key = data.resolve(start)
-        goal_key = data.resolve(goal)
+        start_id = data.resolve(start)
+        goal_id = data.resolve(goal)
     except ValueError as exc:
         raise SystemExit(f"error: {exc}") from None
-    problem = RouteFindingProblem(data.graph, start_key, goal_key)
-    h, label = heuristic_for(goal_key, data.locations)
-    return problem, h, label
+    problem = RouteFindingProblem(data.graph, start_id, goal_id)
+    h = heuristic_for(goal_id, data.locations)
+    label = f"haversine straight-line km to {data.names[goal_id]}"
+    return problem, h, label, data.names
 
 
 def print_result(
     name: str,
     problem: RouteFindingProblem,
     result: SearchResult,
-    h: Callable[[str], float],
+    h: Callable[[int], float],
     h_label: str,
+    names: dict[int, str],
 ) -> None:
     print(f"Algorithm: {name}")
-    print(f"Problem:   {problem.start} → {problem.goal}")
+    print(f"Problem:   {names[problem.start]} → {names[problem.goal]}")
     print(f"Heuristic: {h_label}")
     print(f"Status:    {result.status}")
     if result.extra:
         print(f"Detail:    {result.extra}")
     if result.node is not None:
-        print(f"Path:      {' → '.join(result.path)}")
+        print(f"Path:      {' → '.join(names[c] for c in result.path)}")
         print(f"Depth:     {result.depth} hops")
         print(f"Cost:      {result.cost:.1f} km")
         rows = _g_h_f_along(result.node, h)
-        width = max((len(city) for city, _g, _h, _f in rows), default=0)
+        width = max((len(names[city_id]) for city_id, _g, _h, _f in rows), default=0)
         print()
         print(f"  {'city':<{width}} {'g':>7} {'h':>7} {'f':>7}")
-        for city, g, hv, f in rows:
-            print(f"  {city:<{width}} {g:7.1f} {hv:7.1f} {f:7.1f}")
+        for city_id, g, hv, f in rows:
+            print(f"  {names[city_id]:<{width}} {g:7.1f} {hv:7.1f} {f:7.1f}")
     print()
     print(f"Expanded:  {result.nodes_expanded} nodes")
     print(f"Generated: {result.nodes_generated} nodes")
     print(f"Frontier:  max size {result.max_frontier}")
 
 
-def _g_h_f_along(node: Node, h: Callable[[str], float]) -> list[tuple[str, float, float, float]]:
+def _g_h_f_along(
+    node: Node, h: Callable[[int], float]
+) -> list[tuple[int, float, float, float]]:
     rows = []
     chain: list[Node] = []
     cur: Node | None = node

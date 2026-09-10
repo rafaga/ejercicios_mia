@@ -11,15 +11,15 @@ if TYPE_CHECKING:
 
 @dataclass
 class Node:
-    state: str
+    state: int
     parent: Node | None = None
-    action: str | None = None
+    action: int | None = None
     path_cost: float = 0.0
     depth: int = 0
 
-    def path(self) -> list[str]:
+    def path(self) -> list[int]:
         node: Node | None = self
-        cities: list[str] = []
+        cities: list[int] = []
         while node is not None:
             cities.append(node.state)
             node = node.parent

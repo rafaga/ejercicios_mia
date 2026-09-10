@@ -20,7 +20,7 @@ class SearchResult:
     extra: str = ""
 
     @property
-    def path(self) -> list[str]:
+    def path(self) -> list[int]:
         return [] if self.node is None else self.node.path()
 
     @property

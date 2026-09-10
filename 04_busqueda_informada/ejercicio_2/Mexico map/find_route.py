@@ -19,9 +19,9 @@ def main() -> None:
             stream.reconfigure(encoding="utf-8")
     parser = search_parser("A* search: expand lowest f(n) = g(n) + h(n).")
     args = parser.parse_args()
-    problem, h, label = make_problem(args.start, args.goal)
+    problem, h, label, names = make_problem(args.start, args.goal)
     result = a_star_search(problem, h)
-    print_result("A* search", problem, result, h, label)
+    print_result("A* search", problem, result, h, label, names)
 
 
 if __name__ == "__main__":

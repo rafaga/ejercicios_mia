@@ -1,4 +1,7 @@
-"""Mexico 1,000-city graph loaded from mexico_cities_graph.json."""
+"""Mexico 1,000-city graph loaded from mexico_cities_graph.json.
+
+The search state is the node id (an integer), mirroring the JS library.
+"""
 
 from __future__ import annotations
 
@@ -36,19 +39,19 @@ def _fold(name: str) -> str:
 
 @dataclass
 class MexicoData:
-    """Graph plus per-city lookup structures keyed by display name."""
+    """Graph plus per-city lookup structures; the state is the node id."""
 
     graph: Graph
-    locations: dict[str, Location]
-    populations: dict[str, int]
-    by_fold: dict[str, list[str]] = field(default_factory=dict)
-    by_id: dict[int, str] = field(default_factory=dict)
-    id_of: dict[str, int] = field(default_factory=dict)
+    locations: dict[int, Location]
+    populations: dict[int, int]
+    names: dict[int, str]
+    by_fold: dict[str, list[int]] = field(default_factory=dict)
 
-    def resolve(self, name: str) -> str:
+    def display(self, city_id: int) -> str:
+        return self.names[city_id]
+
+    def resolve(self, name: str) -> int:
         """'City', 'City, State', or '#id'; repeated names are never assumed."""
-        if name in self.locations:
-            return name
         if name.startswith("#"):
             return self._resolve_id(name[1:], name)
         key = _fold(name)
@@ -63,57 +66,56 @@ class MexicoData:
             raise ValueError(self._ambiguous(name, candidates))
         return candidates[0]
 
-    def _resolve_id(self, text: str, original: str) -> str:
+    def _resolve_id(self, text: str, original: str) -> int:
         text = text.strip()
         if not text.isdigit():
             raise ValueError(f"invalid id {original!r}: use '#<number>'")
-        try:
-            return self.by_id[int(text)]
-        except KeyError:
-            raise ValueError(
-                f"unknown city id {text} (valid ids: 0-{max(self.by_id)})"
-            ) from None
+        city_id = int(text)
+        if city_id not in self.names:
+            raise ValueError(f"unknown city id {text} (valid ids: 0-{max(self.names)})")
+        return city_id
 
-    def _qualified_prefix(self, key: str) -> list[str]:
-        return [d for d in self.locations if "," in d and _fold(d).startswith(key)]
+    def _qualified_prefix(self, key: str) -> list[int]:
+        return [
+            city_id
+            for city_id, display in self.names.items()
+            if "," in display and _fold(display).startswith(key)
+        ]
 
-    def _ambiguous(self, name: str, candidates: list[str]) -> str:
+    def _ambiguous(self, name: str, candidates: list[int]) -> str:
         ranked = sorted(candidates, key=lambda c: -self.populations[c])
         lines = [f"{name!r} matches {len(candidates)} cities:"]
-        for c in ranked[:10]:
-            lines.append(f"  - {c} (id {self.id_of[c]}, population {self.populations[c]:,})")
+        for city_id in ranked[:10]:
+            lines.append(
+                f"  - {self.names[city_id]} (id {city_id}, "
+                f"population {self.populations[city_id]:,})"
+            )
         if len(ranked) > 10:
             lines.append(f"  ... and {len(ranked) - 10} more")
         lines.append("disambiguate with 'City, State' or '#id'.")
         return "\n".join(lines)
 
     def _suggestions(self, key: str) -> str:
-        names = [n for n in self.locations if _fold(n).startswith(key)]
-        if not names:
-            names = [n for n in self.locations if key in _fold(n)]
-        if not names:
+        ids = [nid for nid, display in self.names.items() if _fold(display).startswith(key)]
+        if not ids:
+            ids = [nid for nid, display in self.names.items() if key in _fold(display)]
+        if not ids:
             return ""
-        return f" — did you mean: {', '.join(sorted(names)[:5])}?"
+        sample = ", ".join(sorted(self.names[nid] for nid in ids)[:5])
+        return f" — did you mean: {sample}?"
 
 
 def _display_names(nodes: list[dict]) -> list[str]:
-    """One unique display name per node: plain name, or 'Name, State' for repeats."""
+    """Display name per node: plain name, or 'Name, State' for repeats.
+
+    Repeats within the same state share the display; the node id told apart
+    by resolve() is the only disambiguator needed.
+    """
     base_counts = Counter(n["name"] for n in nodes)
-    displays = [
+    return [
         n["name"] if base_counts[n["name"]] == 1 else f"{n['name']}, {n['state']}"
         for n in nodes
     ]
-    # A few names repeat even within one state; number those.
-    display_counts = Counter(displays)
-    seen: Counter = Counter()
-    result: list[str] = []
-    for d in displays:
-        if display_counts[d] == 1:
-            result.append(d)
-            continue
-        seen[d] += 1
-        result.append(f"{d} ({seen[d]})")
-    return result
 
 
 def load_mexico(path: Path = JSON_PATH) -> MexicoData:
@@ -122,28 +124,26 @@ def load_mexico(path: Path = JSON_PATH) -> MexicoData:
 
     displays = _display_names(payload["nodes"])
     graph = Graph()
-    locations: dict[str, Location] = {}
-    populations: dict[str, int] = {}
-    by_fold: dict[str, list[str]] = {}
-    by_id: dict[int, str] = {}
-    id_of: dict[str, int] = {}
+    locations: dict[int, Location] = {}
+    populations: dict[int, int] = {}
+    names: dict[int, str] = {}
+    by_fold: dict[str, list[int]] = {}
     for node, display in zip(payload["nodes"], displays):
-        locations[display] = (node["lat"], node["lon"])
-        populations[display] = node["population"]
-        by_id[node["id"]] = display
-        id_of[display] = node["id"]
+        city_id = node["id"]
+        locations[city_id] = (node["lat"], node["lon"])
+        populations[city_id] = node["population"]
+        names[city_id] = display
         for key in (_fold(display), _fold(node["name"])):
             candidates = by_fold.setdefault(key, [])
-            if display not in candidates:
-                candidates.append(display)
+            if city_id not in candidates:
+                candidates.append(city_id)
 
     for edge in payload["edges"]:
-        graph.add_undirected(displays[edge["source"]], displays[edge["target"]], edge["km"])
+        graph.add_undirected(edge["source"], edge["target"], edge["km"])
     return MexicoData(
         graph=graph,
         locations=locations,
         populations=populations,
+        names=names,
         by_fold=by_fold,
-        by_id=by_id,
-        id_of=id_of,
     )

@@ -1,6 +1,20 @@
 # Reporte ejercicio 2
 
-lorem ipsum
+## Preguntas
+
+- ¿Qué usaste como estado (¿nombre? ¿id? ¿nombre + estado?) y cómo resolviste duplicados.?
+
+Se usa el id, como esta garantizado que es unico resulta menos problematico
+
+Los duplicados no se estan admitiendo en tiempo de ejecucion, cuando un nombre es ambiguo se solicita que ponga el estado al que pertenece y en ultima instancia el id del nodo.
+
+- ¿Por qué haversine es admisible aquí.?
+
+por que todas las distancias y heuristicas estan dados en distancias harversine, ademas se trata de distancias geodesicas, que es precisamente el escenario en donde se aplican este tipo de distancias
+
+- ¿Costo en km y número de hops de tu ruta larga, y cuántos nodos expandió A*?
+
+El costo fue de 3702.8 km, 112 hops y 913 nodos expandio
 
 ## Evidencia
 

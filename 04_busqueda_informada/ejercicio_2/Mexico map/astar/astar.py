@@ -12,18 +12,19 @@ from .result import FAILURE, SUCCESS, SearchResult
 
 def a_star_search(
     problem: RouteFindingProblem,
-    h: Callable[[str], float],
+    h: Callable[[int], float],
 ) -> SearchResult:
     """Optimal if h is admissible (and, for this graph-search version, consistent).
 
-    Straight-line distance to Bucharest is consistent on the Romania map.
+    The haversine distance to the goal is consistent on the Mexico graph:
+    edge costs are haversine distances too.
     """
     node = Node(problem.start)
     frontier: list[tuple[float, int, Node]] = []
     counter = 0
     heapq.heappush(frontier, (node.path_cost + h(node.state), counter, node))
     best_g = {node.state: 0.0}
-    explored: set[str] = set()
+    explored: set[int] = set()
     expanded = 0
     generated = 1
     max_frontier = 1
