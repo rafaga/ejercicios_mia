@@ -10,7 +10,7 @@ Los duplicados no se estan admitiendo en tiempo de ejecucion, cuando un nombre e
 
 - ¿Por qué haversine es admisible aquí.?
 
-por que todas las distancias y heuristicas estan dados en distancias harversine, ademas se trata de distancias geodesicas, que es precisamente el escenario en donde se aplican este tipo de distancias
+por que todas las distancias, aristas y heuristicas estan dados en distancias harversine, ademas se trata de distancias geodesicas, que es precisamente el escenario en donde se aplican este tipo de distancias
 
 - ¿Costo en km y número de hops de tu ruta larga, y cuántos nodos expandió A*?
 
