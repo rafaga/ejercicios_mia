@@ -67,13 +67,37 @@ A* and UCS return the same cost; A* expands fewer nodes:
 | Guadalajara → Mérida | 1,984.75 km | 70 | 736 | 955 |
 | Hermosillo → Oaxaca | 2,361.45 km | 62 | 408 | 821 |
 
+### Command line: `find_route.py`
+
+The same A* search, heuristic, and disambiguation policy, from a terminal:
+
+```bash
+python find_route.py                                          # Mexico City → Monterrey
+python find_route.py --from-city Tijuana --to Cancun
+python find_route.py --from-city "Puebla, Baja California" --to "#4"
+```
+
+Parameters — none is mandatory; both are optional and have defaults:
+
+| Parameter | Default | Meaning |
+| --- | --- | --- |
+| `--from-city` | `Mexico City` | origin: `'City'`, `'City, State'`, or `'#id'` |
+| `--to` | `Monterrey` | destination: same three forms |
+
+Names match ignoring case and accents (`cancun` → `Cancún`), and a partial
+`'City, State'` such as `'Puebla, Baja'` also works. A repeated name is never
+assumed: the run exits with code 1 and lists every match with its id and
+population, so you can rerun with `'City, State'` or `'#id'`. Look up ids with
+`python city_info.py <name>` (it also accepts `'City, State'` and `'#id'`, and
+runs interactively with no arguments).
+
 ### Tests
 
 The library itself uses no Node APIs; the tests only exercise its logic with
-Node's built-in test runner (9 tests, no dependencies):
+Node's built-in test runner (10 tests, no dependencies):
 
 ```bash
-node --test astar/test/
+node --test astar/test/astar.test.js
 ```
 
 ## Regenerating
@@ -109,10 +133,13 @@ Writes `mexico_graph_preview.png` from the current graph JSON.
 
 ```
 generate_mexico_graph.py   build graph, HTML, and adjacency matrix
+find_route.py              A* route search CLI (--from-city / --to)
+city_info.py               city lookup: info, neighbors, ids of repeated names
 emit_viz.py                PNG preview from mexico_cities_graph.json
 mexico_map.html            interactive map + A* route search
+astar/*.py                 Python A* package used by find_route.py
 astar/mexico-astar.js      browser A* library (haversine, GeoGraph, findRoute)
-astar/test/astar.test.js   library tests (node --test astar/test/)
+astar/test/astar.test.js   library tests (node --test astar/test/astar.test.js)
 mexico_cities_graph.json   graph payload
 data/cities1000.txt        GeoNames dump (CC-BY 3.0)
 data/mexico.geojson        country outline
