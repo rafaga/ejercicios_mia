@@ -12,7 +12,19 @@ Algorithm: A* search
 Problem:   Chihuahua → Playa del Carmen
 Heuristic: haversine straight-line km to Playa del Carmen
 Status:    success
-Path:      Chihuahua → Cuauhtémoc, Chihuahua → San Juanito → Guachochi → Choix → Adolfo Ruíz Cortínes → Guamúchil → General Ángel Flores (La Palma) → Licenciado Benito Juárez (Campo Gobierno) → El Rosario, Sinaloa (2) → La Cruz → Mazatlán → Escuinapa → Tecuala → Tuxpan, Nayarit → Villa Hidalgo, Nayarit → Tepic → Xalisco → Las Varas → San Juan de Abajo → Ixtapa, Jalisco → Mascota → El Salto, Jalisco (1) → Tecolotlán → Cocula → Zacoalco de Torres → Jocotepec → Ajijic → Chapala → San José de Gracia → Sahuayo de Morelos → Pajacuarán → Santiago Tangamandapio → Jacona de Plancarte → Tangancícuaro de Arista → Purépero de Echáiz → Zacapu → Quiroga → Conjunto Habitacional Villas del Pedregal → Fraccionamiento Misión del Valle → Álvaro Obregón, Michoacán → Zinapécuaro → Ciudad Hidalgo, Michoacán → Heróica Zitácuaro → Valle de Bravo → San Juan de las Huertas → San Buenaventura, México → San Francisco Cuaxusco → San Salvador Tizatlalli → San Mateo Atenco → Lerma de Villada → Santa María Atarasquillo → Huixquilucan → San Francisco Chimalpa → Naucalpan de Juárez → Tlalnepantla → Buenavista → Fuentes del Valle → San Pablo de las Salinas → Ojo de Agua → San Martín Azcatepec → Teotihuacán de Arista → Otumba → Ciudad Sahagun → Emiliano Zapata, Hidalgo → Ciudad de Nanacamilpa → San Rafael Tlanalapan → Santa Ana Xalmimilulco → San Miguel Xoxtla → Xicohtzinco → Papalotla → Villa Vicente Guerrero → Santa María Xonacatepec → Tepatlaxco de Hidalgo → Tepeaca → Huixcolotla → Tlaixpan → Palmarito Tochapan → Xaltepec → Cuacnopalan → Maltrata → Orizaba → Ixtaczoquitlán → Córdoba → Paso del Macho → Soledad de Doblado → Piedras Negras, Veracruz → La Isla → Tres Valles → Loma Bonita → Isla → Juan Rodríguez Clara → Acayucan → Oteapan → Minatitlán → Ixhuatlán del Sureste → Villa la Venta → Cárdenas, Tabasco → Cunduacán → Jalpa de Méndez → Frontera, Tabasco → Ciudad del Carmen → Escárcega → Champotón → Pomuch → Calkiní → Muna → Oxkutzkab → Akil → Peto → Felipe Carrillo Puerto, Quintana Roo → Tulum → Playa del Carmen
+Path:      Chihuahua → Cuauhtémoc, Chihuahua → San Juanito → Guachochi → Choix → Adolfo Ruíz Cortínes → Guamúchil → General Ángel Flores (La Palma) → 
+Licenciado Benito Juárez (Campo Gobierno) → El Rosario, Sinaloa (2) → La Cruz → Mazatlán → Escuinapa → Tecuala → Tuxpan, Nayarit → Villa Hidalgo, Nayarit → 
+Tepic → Xalisco → Las Varas → San Juan de Abajo → Ixtapa, Jalisco → Mascota → El Salto, Jalisco (1) → Tecolotlán → Cocula → Zacoalco de Torres → Jocotepec → Ajijic → 
+Chapala → San José de Gracia → Sahuayo de Morelos → Pajacuarán → Santiago Tangamandapio → Jacona de Plancarte → Tangancícuaro de Arista → Purépero de Echáiz → Zacapu → 
+Quiroga → Conjunto Habitacional Villas del Pedregal → Fraccionamiento Misión del Valle → Álvaro Obregón, Michoacán → Zinapécuaro → Ciudad Hidalgo, Michoacán → 
+Heróica Zitácuaro → Valle de Bravo → San Juan de las Huertas → San Buenaventura, México → San Francisco Cuaxusco → San Salvador Tizatlalli → San Mateo Atenco → 
+Lerma de Villada → Santa María Atarasquillo → Huixquilucan → San Francisco Chimalpa → Naucalpan de Juárez → Tlalnepantla → Buenavista → Fuentes del Valle → 
+San Pablo de las Salinas → Ojo de Agua → San Martín Azcatepec → Teotihuacán de Arista → Otumba → Ciudad Sahagun → Emiliano Zapata, Hidalgo → Ciudad de Nanacamilpa → 
+San Rafael Tlanalapan → Santa Ana Xalmimilulco → San Miguel Xoxtla → Xicohtzinco → Papalotla → Villa Vicente Guerrero → Santa María Xonacatepec → 
+Tepatlaxco de Hidalgo → Tepeaca → Huixcolotla → Tlaixpan → Palmarito Tochapan → Xaltepec → Cuacnopalan → Maltrata → Orizaba → Ixtaczoquitlán → Córdoba → 
+Paso del Macho → Soledad de Doblado → Piedras Negras, Veracruz → La Isla → Tres Valles → Loma Bonita → Isla → Juan Rodríguez Clara → Acayucan → Oteapan → 
+Minatitlán → Ixhuatlán del Sureste → Villa la Venta → Cárdenas, Tabasco → Cunduacán → Jalpa de Méndez → Frontera, Tabasco → Ciudad del Carmen → Escárcega → 
+Champotón → Pomuch → Calkiní → Muna → Oxkutzkab → Akil → Peto → Felipe Carrillo Puerto, Quintana Roo → Tulum → Playa del Carmen
 Depth:     112 hops
 Cost:      3702.8 km
 
@@ -144,7 +156,10 @@ Algorithm: A* search
 Problem:   Piedras Negras, Coahuila → Piedras Negras, Veracruz
 Heuristic: haversine straight-line km to Piedras Negras, Veracruz
 Status:    success
-Path:      Piedras Negras, Coahuila → Allende, Coahuila → Sabinas → Anáhuac, Nuevo León → Nuevo Laredo → Camargo, Tamaulipas → Reynosa → Ciudad Río Bravo → San Fernando, Tamaulipas → Soto la Marina → González → Ursulo Galván → Ébano → Pánuco → El Higo → Tantoyuca → Cerro Azul → Álamo → Tihuatlan → Poza Rica de Hidalgo → Gutiérrez Zamora → Martínez de la Torre → Misantla → Banderilla → Coatepec, Veracruz → Teocelo → Huatusco → Fortín de las Flores → Córdoba → Paso del Macho → Soledad de Doblado → Piedras Negras, Veracruz
+Path:      Piedras Negras, Coahuila → Allende, Coahuila → Sabinas → Anáhuac, Nuevo León → Nuevo Laredo → Camargo, Tamaulipas → Reynosa → Ciudad Río Bravo → 
+San Fernando, Tamaulipas → Soto la Marina → González → Ursulo Galván → Ébano → Pánuco → El Higo → Tantoyuca → Cerro Azul → Álamo → Tihuatlan → Poza Rica de Hidalgo → 
+Gutiérrez Zamora → Martínez de la Torre → Misantla → Banderilla → Coatepec, Veracruz → Teocelo → Huatusco → Fortín de las Flores → Córdoba → Paso del Macho → 
+Soledad de Doblado → Piedras Negras, Veracruz
 Depth:     31 hops
 Cost:      1537.8 km
 
