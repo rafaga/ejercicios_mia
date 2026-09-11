@@ -2,47 +2,58 @@
 
 ## Archivos notebook
 
-![Multilayer Perceptron-Original]("01 Multilayer perceptron.ipynb")
-![Multilayer Perceptron-Modificado]("01-mod_Multilayer_Perceptron.ipynb")
-![Keras-Multilayer Perceptron-Original]("02 Keras - multilayer perceptron - iris.ipynb")
-![Keras-Multilayer Perceptron-Modificado]("02-mod Keras - multilayer perceptron - iris.ipynb")
+- [Multilayer Perceptron — original](<01 Multilayer perceptron.ipynb>)
+- [Multilayer Perceptron — modificado](01-mod_Multilayer_Perceptron.ipynb)
+- [Keras — multilayer perceptron (Iris) — original](<02 Keras - multilayer perceptron - iris.ipynb>)
+- [Keras — multilayer perceptron (Iris) — modificado](<02-mod Keras - multilayer perceptron - iris.ipynb>)
 
-## Cruvas de error/perdida
+## Curvas de error/pérdida
 
 ### Perceptron from scratch
 
-Original
-![Multilayer Perceptron-Original]("02-Keras_original.ipynb")
+**Original**
 
-Modificado
-![Multilayer Perceptron-Original]("02-Keras_original.ipynb")
+![Curva de error — perceptrón multicapa original](01-perceptron_original.png)
+
+**Modificado**
+
+![Curva de error — perceptrón multicapa modificado](01-perceptron_modificado.png)
 
 ### Keras
 
-Original
-![Multilayer Perceptron-Original]("02-Keras_original.ipynb")
+**Original**
 
+![Curva de pérdida — Keras original](02-Keras_original.png)
+
+```text
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
 │ layer1 (Dense)                  │ (None, 3)              │            15 │
 │ layer2 (Dense)                  │ (None, 3)              │            12 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
  Total params: 27 (108.00 B)
  Trainable params: 27 (108.00 B)
  Non-trainable params: 0 (0.00 B)
+```
 
-Modificado
-![Multilayer Perceptron-Original]("02-Keras_modificado.ipynb")
+**Modificado**
 
+![Curva de pérdida — Keras modificado](02-Keras_modificado.png)
+
+```text
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
 │ layer1 (Dense)                  │ (None, 3)              │            15 │
 │ layer2 (Dense)                  │ (None, 3)              │            12 │
 │ layer3 (Dense)                  │ (None, 3)              │            12 │
 │ layer4 (Dense)                  │ (None, 3)              │            12 │
-
+└─────────────────────────────────┴────────────────────────┴───────────────┘
  Total params: 51 (204.00 B)
  Trainable params: 51 (204.00 B)
  Non-trainable params: 0 (0.00 B)
+```
 
 ## Preguntas por responder
 
