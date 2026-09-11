@@ -2,8 +2,7 @@
 
 ## Archivos notebook
 
-- [Multilayer Perceptron — original](<01 Multilayer perceptron.ipynb>)
-
+- [13 YOLO ultralytics](13_YOLO_ultralytics.ipynb>)
 
 ## Preguntas por responder
 
