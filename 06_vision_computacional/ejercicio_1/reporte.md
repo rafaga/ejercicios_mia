@@ -2,7 +2,7 @@
 
 ## Archivos notebook
 
-- [13 YOLO ultralytics](13_YOLO_ultralytics.ipynb>)
+- [13 YOLO ultralytics](13_YOLO_ultralytics.ipynb)
 
 ## Preguntas por responder
 
