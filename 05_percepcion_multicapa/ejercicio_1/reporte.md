@@ -57,15 +57,24 @@
 
 ## Preguntas por responder
 
-3. Un breve reporte (media página a una página) que responda:
-   - ¿Bajar más el error al añadir dos capas, o se estancó / empeoró? ¿Igual
-     en NumPy y en Keras?
-   - ¿Las curvas de la notebook 01 y de Keras se parecen con la misma
-     topología? Si no, ¿qué diferencias de implementación podrían explicarlo
-     (orden de los datos, inicialización, vectorización, etc.)?
-   - Con sigmoides apiladas y MSE, ¿tiene sentido que una red **más profunda**
-     no aprenda mejor en Iris? Relaciónalo con lo que viste en las gráficas.
-4. Evidencias de haber ejecutado en Colab (captura del entorno Colab o del
-   menú Runtime).
+- ¿Baja más el error al añadir dos capas, o se estancó / empeoró? ¿Igual en NumPy y en Keras?
 
-## Evidencia
+En numpy empeoro y en Keras mejoro
+
+- ¿Las curvas de la notebook 01 y de Keras se parecen con la misma topología? Si no, ¿qué diferencias de implementación podrían explicarlo (orden de los datos, inicialización, vectorización, etc.)?
+
+Una conbinacion de varios factores afectan el desempeño:
+
+ 1. La relacion de actualizaciones por epocas. Keras tiene ventaja porque actualiza cada 32 epocas contra los 150 de la 01 esto hace que la curva se adapte mejor en Keras.
+ 2. Diferentes paradigmas de inicializacion: 01 inicializa los valores en +/- 0.5 con valores random de sesgos saturan las curvas sigmoides apiladas y Keras iniciliza los sesgos en 0 y  ademas al usar el algoritmo Glorot deja la neurona en el punto de mejor aprendizaje (queda centrado cerca de la zona donde la sigmoide tiene máxima derivada (0.25 en z=0))
+ 3. El dataset Iris esta ordenado: Apesar de que Iris tiene los datos ordenados por clase, Keras se encarga de combinarlos de manera uniforme de tal manera que el modelo aprende en base los pesos de las clases de flores combinadas en cambio el 01 ingesta el dataset como viene, el problema los pesos no se entyrenan bien por que durante el primer tercio de la corrida ajusta susu pesos en base a un unico tipo de flor y luego cuando vienen el segundo tercio de un tipo de flor diferente estos pessos cambian pero pierden lo aprendido en el primer tercio por que ya no hay mas datos y asi . eso hace que la funcion gradiente oscile entre un valor y otro y no descienda adecuamente.
+
+- Con sigmoides apiladas y MSE, ¿tiene sentido que una red **más profunda** no aprenda mejor en Iris? Relaciónalo con lo que viste en las gráficas.
+
+Si tiene sentido, por que si no se mitigan los problemas adecuadamente las neuronas no aprenden por estar saturadas esto por la propia funcion sigmoide. Distribuir unifoirmemente la informacion y algunas estrategias de inicializacion y de actualizacion pueden mitigar, pero no desaparecer, algunas de estas limitaciones.
+
+## Evidencia Colab
+
+![Colab01](colab 01.png)
+
+![Colab02](colab 02.png)
