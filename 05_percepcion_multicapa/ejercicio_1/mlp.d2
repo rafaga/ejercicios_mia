@@ -1,0 +1,49 @@
+direction: down
+
+start: "Inicio" {shape: oval}
+init: "Inicializar pesos aleatorios\n(layer1, layer2, layer3, layer4)" {shape: rectangle}
+
+epoch_check: "¿Quedan épocas\npor recorrer?" {shape: diamond}
+sample_check: "¿Quedan muestras\n(X[d], Y[d]) en esta época?" {shape: diamond}
+
+forward: "Fase 1 · Propagación hacia adelante" {
+  style.fill: "#eaf2ff"
+  l1: "output_layer1 = sigmoid(layer1 · X[d])"
+  l2: "output_layer2 = sigmoid(layer2 · output_layer1)"
+  l3: "output_layer3 = sigmoid(layer3 · output_layer2)"
+  l4: "output_layer4 = sigmoid(layer4 · output_layer3)"
+  l1 -> l2 -> l3 -> l4
+}
+
+backward: "Fase 2 · Retropropagación de errores (deltas)" {
+  style.fill: "#fff2e0"
+  d4: "delta_layer4 = out4·(1-out4)·(Y[d]-out4)"
+  d3: "delta_layer3 = out3·(1-out3)·Σ(layer4[j][i+1]·delta4[j])"
+  d2: "delta_layer2 = out2·(1-out2)·Σ(layer3[j][i+1]·delta3[j])"
+  d1: "delta_layer1 = out1·(1-out1)·Σ(layer2[j][i+1]·delta2[j])"
+  d4 -> d3: "usa pesos ORIGINALES\nde layer4 (antes de actualizar)"
+  d3 -> d2: "usa pesos ORIGINALES\nde layer3"
+  d2 -> d1: "usa pesos ORIGINALES\nde layer2"
+}
+
+update: "Fase 3 · Actualización de pesos" {
+  style.fill: "#e8f9ee"
+  u4: "layer4 += alpha · delta4 · output_layer3"
+  u3: "layer3 += alpha · delta3 · output_layer2"
+  u2: "layer2 += alpha · delta2 · output_layer1"
+  u1: "layer1 += alpha · delta1 · X[d]"
+  u4 -> u3 -> u2 -> u1
+}
+
+calc_error: "Calcular error total\n(promedio de error cuadrático\nsobre todo el dataset)" {shape: rectangle}
+finish: "Fin — pesos entrenados" {shape: oval}
+
+start -> init -> epoch_check
+epoch_check -> sample_check: sí
+sample_check -> forward: sí, hay muestra
+forward.l4 -> backward.d4
+backward.d1 -> update.u4
+update.u1 -> sample_check: siguiente muestra d+1
+sample_check -> calc_error: no, muestras agotadas
+calc_error -> epoch_check: registrar error de la época
+epoch_check -> finish: no
