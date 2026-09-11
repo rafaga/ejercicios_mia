@@ -25,5 +25,3 @@ No, hay un vehiculo que no se ve en la imagen o esta sobre puesta en otra etique
 ## Evidencia Colab
 
 ![Captura de Google Colab con la evidencia de ejecución del notebook de vision; presenta sus resultados técnicos](evidencia.png)
-
-
