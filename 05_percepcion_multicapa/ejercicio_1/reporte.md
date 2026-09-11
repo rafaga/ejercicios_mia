@@ -13,17 +13,17 @@
 
 **Original**
 
-![Curva de error — perceptrón multicapa original](01-perceptron_original.png)
+![Gráfica de la curva de error del perceptrón multicapa original entrenado desde cero; muestra cómo cambia el error a lo largo del entrenamiento en un resultado técnico y sin elementos decorativos](01-perceptron_original.png)
 
 **Modificado**
 
-![Curva de error — perceptrón multicapa modificado](01-perceptron_modificado.png)
+![Gráfica de la curva de error del perceptrón multicapa modificado entrenado desde cero; permite comparar la evolución del error durante el entrenamiento en un resultado técnico y sin elementos decorativos](01-perceptron_modificado.png)
 
 ### Keras
 
 **Original**
 
-![Curva de pérdida — Keras original](02-Keras_original.png)
+![Gráfica de la curva de pérdida del perceptrón multicapa original implementado con Keras; muestra la evolución de la pérdida durante el entrenamiento en el entorno de experimentación del notebook](02-Keras_original.png)
 
 ```text
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
@@ -39,7 +39,7 @@
 
 **Modificado**
 
-![Curva de pérdida — Keras modificado](02-Keras_modificado.png)
+![Gráfica de la curva de pérdida del perceptrón multicapa modificado implementado con Keras; muestra la evolución de la pérdida durante el entrenamiento en el entorno de experimentación del notebook](02-Keras_modificado.png)
 
 ```text
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
@@ -75,6 +75,6 @@ Si tiene sentido, por que si no se mitigan los problemas adecuadamente las neuro
 
 ## Evidencia Colab
 
-![Colab01]("colab 01.png")
+![Captura de Google Colab con la evidencia de ejecución del notebook del perceptrón multicapa; presenta el entorno de celdas y sus resultados técnicos](colab_01.png)
 
-![Colab02]("colab 02.png")
+![Captura de Google Colab con la evidencia de ejecución del segundo notebook del perceptrón multicapa; presenta el entorno de celdas y sus resultados técnicos.](colab_02.png)
