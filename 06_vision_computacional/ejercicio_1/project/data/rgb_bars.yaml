@@ -1,0 +1,8 @@
+name: RGB bars + gold
+kind: rgb_bars
+rows: 8
+cols: 12
+pad: edge
+probe: [4, 6]
+kernel: mean3
+threshold: 0.28

@@ -1,0 +1,7 @@
+name: Synthetic scene (circle + rectangle)
+kind: scene
+size: 28
+pad: edge
+probe: [13, 9]
+kernel: mean5
+threshold: 0.28

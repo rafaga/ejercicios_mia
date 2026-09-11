@@ -1,0 +1,13 @@
+name: Lecture step 0|9
+kind: gray
+pad: edge
+probe: [2, 2]
+kernel: mean3
+show_kernels: [mean3, sobel_x, sobel_y]
+threshold: 0.5
+pixels:
+  - [0, 0, 0, 9, 9]
+  - [0, 0, 0, 9, 9]
+  - [0, 0, 0, 9, 9]
+  - [0, 0, 0, 9, 9]
+  - [0, 0, 0, 9, 9]
