@@ -75,6 +75,6 @@ Si tiene sentido, por que si no se mitigan los problemas adecuadamente las neuro
 
 ## Evidencia Colab
 
-![Colab01](colab 01.png)
+![Colab01]("colab 01.png")
 
-![Colab02](colab 02.png)
+![Colab02]("colab 02.png")
