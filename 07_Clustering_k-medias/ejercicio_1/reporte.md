@@ -68,6 +68,8 @@ si coincidieron en la misma k, pero esa K no fue 5 sino  3.
 
 No sigue en 4. Al separar los centros los dos blobs de mayor varianza (std 0.4 y 0.3) terminaron traslapándose entre sí, evitando ese traslape podriamos lograr que k se ajuste a 5.
 
+![Traslape](images/traslape.png)
+
 ## Evidencia Colab
 
 ![Evidencia Colab](images/evidencia.png)
