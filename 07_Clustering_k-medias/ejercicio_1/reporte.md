@@ -14,25 +14,46 @@
 
 La primera imagen de cada grupo es el notebook original y la segunda es la modificada.
 
+**Original**
+
+> blob_centers = np.array(
+>     [[ 0.2,  2.3],
+>      [-1.5 ,  2.3],
+>      [-2.8,  1.8],
+>      [-2.8,  2.8],
+>      [-2.8,  1.3]])
+> blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
+
+**Modificado**
+
+> blob_centers = np.array(
+>     [[ 0.2,  2.3],
+>      [-1.5 ,  2.3],
+>      [-2.1,  1.8],
+>      [-0.5,  2.8],
+>      [-3.4,  1.3]])
+> blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
+
 ### Scatter de blobs
 
-![Antes](scatter.png)
-![Despues](scatter-mod.png)
+![Antes](images/scatter.png)
+![Despues](images/scatter-mod.png)
 
 ### Diagrama de Voronoi (k=5)
 
-![Antes](voronoi.png)
-![Despues](voronoi-mod.png)
+![Antes](images/voronoi.png)
+![Despues](images/voronoi-mod.png)
 
 ### Curva de codo / Inercia
 
-![Antes](codo-inercia.png)
-![Despues](codo-inercia-mod.png)
+![Antes](images/codo-inercia.png)
+![Despues](images/codo-inercia-mod.png)
 
 ### Curva de Silueta
 
-![Antes](silueta.png)
-![Despues](silueta-mod.png)
+![Antes](images/silueta.png)
+![Despues](images/silueta-mod.png)
 
 ## Evidencia Colab
 
+![Evidencia Colab](images/evidencia.png)
