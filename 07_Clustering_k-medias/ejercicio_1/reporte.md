@@ -16,23 +16,23 @@ La primera imagen de cada grupo es el notebook original y la segunda es la modif
 
 **Original**
 
-> blob_centers = np.array(
->     [[ 0.2,  2.3],
->      [-1.5 ,  2.3],
->      [-2.8,  1.8],
->      [-2.8,  2.8],
->      [-2.8,  1.3]])
-> blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
+    blob_centers = np.array(
+      [[ 0.2,  2.3],
+      [-1.5 ,  2.3],
+      [-2.8,  1.8],
+      [-2.8,  2.8],
+      [-2.8,  1.3]])
+    blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
 
 **Modificado**
 
-> blob_centers = np.array(
->     [[ 0.2,  2.3],
->      [-1.5 ,  2.3],
->      [-2.1,  1.8],
->      [-0.5,  2.8],
->      [-3.4,  1.3]])
-> blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
+    blob_centers = np.array(
+      [[ 0.2,  2.3],
+      [-1.5 ,  2.3],
+      [-2.1,  1.8],
+      [-0.5,  2.8],
+      [-3.4,  1.3]])
+    blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
 
 ### Scatter de blobs
 
