@@ -54,6 +54,20 @@ La primera imagen de cada grupo es el notebook original y la segunda es la modif
 ![Antes](images/silueta.png)
 ![Despues](images/silueta-mod.png)
 
+## Preguntas por resolver
+
+- En los datos de Géron, ¿por qué el codo “prefiere” (k = 4) si make_blobs usó 5 centros?
+
+por la manera en como estan inicializados los centroides, tampoco ayuda que hay grupos que estan muy condensados el -2.8 de x
+
+- Con tus blobs separados, ¿el codo y la silueta coinciden en el mismo (k)? ¿Ese (k) es 5?
+
+si coincidieron en la misma k, pero esa K no fue 5 sino  3.
+
+- Si el codo sigue en 4, ¿qué te falta mover (distancia entre centros vs. blob_std)?
+
+No sigue en 4.
+
 ## Evidencia Colab
 
 ![Evidencia Colab](images/evidencia.png)
