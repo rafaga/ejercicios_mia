@@ -2,8 +2,8 @@
 
 ## Archivos notebook
 
-- [K-Medias Modificado]('01 K-medias-mod.ipynb')
-- [K-Medias Original]('01 K-medias.ipynb')
+- [K-Medias Modificado](01_K-medias-mod.ipynb)
+- [K-Medias Original](01_K-medias.ipynb)
 
 ## Corridas
 
