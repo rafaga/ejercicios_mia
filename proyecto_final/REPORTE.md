@@ -6,7 +6,7 @@ explícitamente en qué se **adaptó** el enunciado original.
 
 ## 1. Adaptaciones respecto al enunciado
 
-| Enunciado | Esta implementación | Motivo |
+| Requerimiento | Esta implementación | Motivo |
 |---|---|---|
 | Embeddings con Google AI | **BAAI/bge-m3** local (vectores normalizados, coseno) | Ya existía el índice denso construido con BGE-M3 sobre ~199 mil abstracts |
 | Generación con Gemini | LLM por API (**OpenCode Go**, modelo `deepseek-v4-flash`; también soporta Anthropic y OpenAI vía `.env`) | Sin Google AI |
