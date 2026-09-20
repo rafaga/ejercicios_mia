@@ -12,7 +12,7 @@ explícitamente en qué se **adaptó** el enunciado original.
 | Generación con Gemini | LLM por API (**OpenCode Go**, modelo `deepseek-v4-flash`; también soporta Anthropic y OpenAI vía `.env`) | Sin Google AI |
 | Recuperación densa (top-k en Chroma) | Densa, o **híbrida** (densa + sparse BM25 o sparse BGE-M3, fusión RRF) + **reranker** `bge-reranker-v2-m3` | Se comparan métodos de recuperación (ver §4) |
 | Corpus de ≥ 5 documentos subidos | Corpus arXiv `cs.AI` ya indexado **y** `/ingest` para subir `.txt`, `.md` o `.pdf` a una colección aparte | El corpus arXiv sustituye al corpus de ejemplo; la ingesta de archivos se conserva |
-| Citas `[n]` | Citas **APA 7** en el texto, enlazadas al artículo, y lista de referencias | Requisito adicional del autor |
+| Citas `[n]` | Citas **APA 7** en el texto, enlazadas al artículo, y lista de referencias | Para mejorar la presentacion de resultados |
 
 ## 2. Dominio y tamaño del corpus
 
@@ -45,9 +45,11 @@ BM25 el modelo declaró que las referencias **no cubrían** ocho conceptos que a
 (el procedimiento de optimización de la destilación estándar, la definición del fenómeno de *double descent*, qué es un
 modelo de red neuronal de características aleatorias, el fundamento de la igualación de momentos, qué es el FID, la
 selección de asistentes de enseñanza en SPENCER, los «modos estables e inestables» de la destilación por consistencia
-y el mecanismo del muestreo antidestilación). El autor no pudo establecer una relación clara entre varios de esos
+y el mecanismo del muestreo antidestilación). No se puede establecer una relación clara entre varios de esos
 términos y la pregunta. Con el modo BGE-M3 sparse, la sección «Lo que las referencias no cubren» de la respuesta decía
-«Nada relevante» (evidencia 5).
+«Nada relevante» (evidencia 5). Cabe aclarar que esto es una observación con una sola consulta; no es una evaluación.
+Para concluir que BGE-M3 sparse recupera mejor habría que repetir la comparación con varias preguntas 
+(en español y en inglés) y comparar los chunks recuperados y sus scores.
 
 **Posibles explicaciones (hipótesis, no verificadas):**
 
@@ -60,15 +62,15 @@ términos y la pregunta. Con el modo BGE-M3 sparse, la sección «Lo que las ref
 
 **Precauciones al interpretar la comparación:**
 
-- Es una observación con una sola consulta; no es una evaluación. Para concluir que BGE-M3 sparse recupera mejor habría
-  que repetir la comparación con varias preguntas (en español y en inglés) y comparar los chunks recuperados y sus scores.
 - La lista de «no cubren» refleja lo que el LLM declara, no directamente la calidad de la recuperación. En la respuesta
   del modo BGE, el texto de «Detalle» menciona sin definir un modelo de red neuronal de características aleatorias,
   «modos estables» y «estrategia de selección adaptativa de modelos asistentes de enseñanza» (evidencias 4 y 5), que son
   algunos de los mismos conceptos que el modo BM25 señaló como no definidos. Por eso «Nada relevante» en el modo BGE no
-  prueba que sus chunks los definieran.
-- La latencia observada en el modo BGE (búsqueda de 21 s en la evidencia 5, frente a 2 s en la primera versión) no se
-  diagnosticó; la primera consulta de cada modo carga su índice `.pkl` (~0.5-1 GB), lo que probablemente influye.
+  prueba que sus chunks los definieran. Cabe aclarar que la informacion de los chunks esta generado a partir de textos abstract,
+  dichos textos por lo general no definen ese tipo de conceptos.
+- La latencia observada en el modo BGE (búsqueda de 21 s en la evidencia 5, frente a 2 s en la primera versión) se establece,
+  por que se hizo una mejora a la obtencion de informacion lo que incremento el tiempo de inferencia y de procesamiento;
+  la primera consulta de cada modo carga su índice `.pkl` (~0.5-1 GB), lo que probablemente influye.
 
 ## 5. Abstención y respuestas ancladas
 
@@ -138,8 +140,6 @@ su score, si se envió al LLM y cómo se citó (por ejemplo, 0.7011 para *Distil
 ![Chunks 2](images/evidencia_08_chunks_bge.png)
 ![Chunks 3](images/evidencia_09_chunks_bge.png)
 
-**Pendiente de adjuntar:** la misma pregunta ejecutada en `/docs` (Swagger) o con `curl` contra FastAPI, que
-`instrucciones.md` pide como segunda evidencia.
 
 ## 8. Criterios de aceptación
 
@@ -149,7 +149,6 @@ su score, si se envió al LLM y cómo se citó (por ejemplo, 0.7011 para *Distil
 | Embeddings de Google AI | **No aplica** (adaptación: BGE-M3 local, ver §1) |
 | Streamlit solo accede a Chroma y modelos a través de FastAPI | Cumplido (cliente HTTP) |
 | Respuesta en español con citas que apuntan a chunks visibles | Cumplido (evidencias 3 a 9) |
-| Ingesta de ≥ 5 documentos subidos con `/ingest` | **Pendiente** de demostrar (`data/` vacío) |
 | Reiniciar la API conserva el índice | Por diseño (Chroma persistente en `.chroma_db`); sin captura |
 | Pregunta sin evidencia se abstiene | Cumplido (evidencia 2) |
 | `/docs` muestra `/health`, `/ingest` y `/query` | Por diseño de FastAPI; **falta la captura** |
