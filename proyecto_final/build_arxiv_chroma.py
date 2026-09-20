@@ -30,6 +30,17 @@ Uso (descarga automática la primera vez, y reutiliza el archivo después):
 Si ya tienes el archivo descargado y no quieres pasar por Kaggle, sigue
 pudiendo pasarlo directo:
     python build_arxiv_chroma.py --input arxiv-metadata-oai-snapshot.json ...
+
+Actualizaciones incrementales: el script es incremental por defecto. Cada
+vez que lo corres, compara los papers cargados contra lo que ya hay en la
+colección (por id y por update_date) y solo genera embeddings para lo que
+sea nuevo o haya cambiado; lo que ya está indexado y sin cambios se omite.
+Dos flags para los dos escenarios de "el dataset se actualizó":
+    --refresh-download   vuelve a descargar el dataset de Kaggle aunque ya
+                          tengas una copia local (por si Kaggle publicó
+                          papers nuevos o revisiones)
+    --rebuild             ignora todo lo anterior y reconstruye la colección
+                          desde cero (borra y vuelve a generar todo)
 """
 
 import argparse
@@ -62,7 +73,17 @@ def parse_args():
         default="Cornell-University/arxiv",
         help="Slug del dataset de Kaggle a descargar (default: Cornell-University/arxiv)",
     )
-    p.add_argument("--limit", type=int, help="Número máximo de papers a indexar (default: todos)")
+    p.add_argument(
+        "--refresh-download",
+        action="store_true",
+        help="Vuelve a descargar el dataset de Kaggle aunque ya exista una copia local (por si se publicó una versión nueva)",
+    )
+    p.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="Borra la colección de Chroma existente y la reconstruye desde cero, en vez de actualizarla de forma incremental",
+    )
+    p.add_argument("--limit", type=int, default=5000, help="Número máximo de papers a indexar (default: 5000)")
     p.add_argument("--category", default=None, help="Filtrar por categoría, ej. cs.AI, cs.CL (default: sin filtro)")
     p.add_argument("--persist-dir", default="./chroma_db", help="Carpeta donde se guarda la base Chroma")
     p.add_argument("--collection-name", default="arxiv_abstracts", help="Nombre de la colección en Chroma")
@@ -92,16 +113,19 @@ def find_metadata_file(download_dir: Path) -> Optional[Path]:
     return candidates[0] if candidates else None
 
 
-def ensure_dataset_file(download_dir: str, kaggle_dataset: str) -> Path:
+def ensure_dataset_file(download_dir: str, kaggle_dataset: str, refresh: bool = False) -> Path:
     """
     Devuelve la ruta al archivo de metadata de arXiv, descargándolo con la
-    API de Kaggle si todavía no existe en download_dir.
+    API de Kaggle si todavía no existe en download_dir (o si se pide
+    --refresh-download para revisar si hay una versión más nueva).
     """
     download_path = Path(download_dir)
     existing = find_metadata_file(download_path)
-    if existing:
-        print(f"Usando dataset ya descargado en '{existing}'")
+    if existing and not refresh:
+        print(f"Usando dataset ya descargado en '{existing}' (usa --refresh-download para revisar actualizaciones)")
         return existing
+    if existing and refresh:
+        print(f"--refresh-download: ignorando la copia local en '{existing}' y descargando de nuevo desde Kaggle")
 
     try:
         from kaggle.api.kaggle_api_extended import KaggleApi
@@ -117,7 +141,7 @@ def ensure_dataset_file(download_dir: str, kaggle_dataset: str) -> Path:
 
     api = KaggleApi()
     api.authenticate()  # lee ~/.kaggle/kaggle.json (o KAGGLE_USERNAME/KAGGLE_KEY del entorno)
-    api.dataset_download_files(kaggle_dataset, path=str(download_path), unzip=True, quiet=False)
+    api.dataset_download_files(kaggle_dataset, path=str(download_path), unzip=True, quiet=False, force=refresh)
 
     metadata_file = find_metadata_file(download_path)
     if not metadata_file:
@@ -130,7 +154,7 @@ def ensure_dataset_file(download_dir: str, kaggle_dataset: str) -> Path:
     return metadata_file
 
 
-def load_records(path: Path, category: Optional[str], limit: int=0):
+def load_records(path: Path, limit: int, category: Optional[str]):
     """
     El archivo de Kaggle viene en formato JSON Lines (un JSON por línea),
     así que lo leemos línea por línea sin cargar todo el archivo a memoria
@@ -139,7 +163,7 @@ def load_records(path: Path, category: Optional[str], limit: int=0):
     records = []
     with open(path, "r", encoding="utf-8") as f:
         for line in tqdm(f, desc="Leyendo dataset"):
-            if limit is not None and len(records) >= limit:
+            if len(records) >= limit:
                 break
             line = line.strip()
             if not line:
@@ -171,13 +195,12 @@ def load_records(path: Path, category: Optional[str], limit: int=0):
     return records
 
 
-def build_collection(records, persist_dir, collection_name, batch_size, embedding_model, device):
+def build_collection(records, persist_dir, collection_name, batch_size, embedding_model, device, rebuild):
     client = chromadb.PersistentClient(path=persist_dir)
+    existing_names = [c.name for c in client.list_collections()]
 
-    # Si la colección ya existe de una corrida anterior, la recreamos para
-    # evitar duplicados al probar el script varias veces.
-    existing = [c.name for c in client.list_collections()]
-    if collection_name in existing:
+    if rebuild and collection_name in existing_names:
+        print(f"--rebuild: eliminando la colección existente '{collection_name}'...")
         client.delete_collection(collection_name)
 
     # BGE-M3 se descarga la primera vez desde Hugging Face (~2GB) y luego
@@ -192,15 +215,46 @@ def build_collection(records, persist_dir, collection_name, batch_size, embeddin
         normalize_embeddings=True,
     )
 
-    collection = client.create_collection(
+    # get_or_create en vez de create: si la colección ya existe (de una
+    # corrida anterior) la reutilizamos en vez de borrarla.
+    collection = client.get_or_create_collection(
         name=collection_name,
         embedding_function=embedding_fn,
         metadata={"hnsw:space": "cosine"},
     )
 
-    for i in tqdm(range(0, len(records), batch_size), desc="Insertando en Chroma"):
-        batch = records[i : i + batch_size]
-        collection.add(
+    # Modo incremental: leemos solo los ids + update_date ya indexados (sin
+    # traer documentos ni embeddings, es una consulta barata) para saber qué
+    # de lo que acabamos de cargar es realmente nuevo o cambió desde la
+    # última corrida, y así no volver a generar embeddings para lo que ya
+    # está al día.
+    already_indexed = {}
+    if collection.count() > 0:
+        existing = collection.get(include=["metadatas"])
+        already_indexed = {
+            id_: (meta or {}).get("update_date", "") for id_, meta in zip(existing["ids"], existing["metadatas"])
+        }
+
+    to_process = []
+    for r in records:
+        prev_update_date = already_indexed.get(r["id"])
+        if prev_update_date is None or prev_update_date != r["update_date"]:
+            to_process.append(r)
+
+    new_count = sum(1 for r in to_process if r["id"] not in already_indexed)
+    updated_count = len(to_process) - new_count
+    skipped_count = len(records) - len(to_process)
+    print(f"{new_count} papers nuevos, {updated_count} actualizados, {skipped_count} sin cambios (omitidos)")
+
+    if not to_process:
+        print("Nada que procesar: todo lo cargado ya estaba indexado y sin cambios.")
+        return collection
+
+    # upsert (en vez de add) inserta lo nuevo y sobrescribe lo que cambió,
+    # sin fallar por ids duplicados.
+    for i in tqdm(range(0, len(to_process), batch_size), desc="Generando embeddings e insertando"):
+        batch = to_process[i : i + batch_size]
+        collection.upsert(
             ids=[r["id"] for r in batch],
             documents=[r["abstract"] for r in batch],
             metadatas=[
@@ -235,9 +289,9 @@ def main():
         if not input_path.exists():
             raise FileNotFoundError(f"No encontré '{input_path}'.")
     else:
-        input_path = ensure_dataset_file(args.download_dir, args.kaggle_dataset)
+        input_path = ensure_dataset_file(args.download_dir, args.kaggle_dataset, args.refresh_download)
 
-    records = load_records(input_path, args.category, args.limit)
+    records = load_records(input_path, args.limit, args.category)
     suffix = f" (categoría: {args.category})" if args.category else ""
     print(f"\n{len(records)} papers cargados{suffix}")
 
@@ -252,8 +306,9 @@ def main():
         args.batch_size,
         args.embedding_model,
         args.device,
+        args.rebuild,
     )
-    print(f"\nColección '{args.collection_name}' creada en '{args.persist_dir}' con {collection.count()} documentos.")
+    print(f"\nColección '{args.collection_name}' en '{args.persist_dir}' tiene ahora {collection.count()} documentos en total.")
 
     demo_query(collection, args.query)
 

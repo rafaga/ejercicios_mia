@@ -64,6 +64,23 @@ def parse_args():
     return p.parse_args()
 
 
+def get_all_documents(collection, page_size: int = 300):
+    """
+    Trae todos los documentos de la colección en páginas (limit/offset) en
+    vez de una sola llamada a get(). Con colecciones grandes, un get() sin
+    paginar puede toparse con el límite de variables de SQLite que usa
+    Chroma por debajo ("too many SQL variables").
+    """
+    total = collection.count()
+    ids, documents, metadatas = [], [], []
+    for offset in tqdm(range(0, total, page_size), desc="Leyendo de Chroma (paginado)"):
+        batch = collection.get(limit=page_size, offset=offset, include=["documents", "metadatas"])
+        ids.extend(batch["ids"])
+        documents.extend(batch["documents"])
+        metadatas.extend(batch["metadatas"])
+    return ids, documents, metadatas
+
+
 def load_documents_from_chroma(persist_dir: str, collection_name: str):
     """
     Lee todos los documentos (texto + metadata + ids) directo de la colección
@@ -76,8 +93,7 @@ def load_documents_from_chroma(persist_dir: str, collection_name: str):
     total = collection.count()
     print(f"Leyendo {total} documentos de la colección '{collection_name}'...")
 
-    result = collection.get(include=["documents", "metadatas"])
-    return result["ids"], result["documents"], result["metadatas"]
+    return get_all_documents(collection)
 
 
 def build_bm25(documents):

@@ -6,3 +6,5 @@ venv/
 arxiv_data
 .chroma_db
 .env
+.claude
+.agents
