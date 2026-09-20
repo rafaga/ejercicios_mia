@@ -13,6 +13,10 @@ Modos de recuperación (se eligen en Streamlit o con `mode` en `/query`):
 `hybrid_bm25` (BM25 + denso, RRF), `hybrid_bge` (BGE-M3 sparse + denso, RRF) y `dense` (solo embeddings).
 En los tres se aplica el reranker, cuyo score decide la abstención (`MIN_SCORE`).
 
+**NOTA** : El proceso completo tarda en completarse de 3 a 5 hrs aproximadamente depende de tu ancho de banda
+y el poder de procesamiento de tu equipo asi como de la capacidad de procesamiento paraleleo disponible. Tener
+GPU Nvidia o Procesadores Apple Silicon influye favorablemente en el tiempo de ejecucion de los scripts.
+
 ## 1. Requisitos
 
 - Python 3.10+ (probado con 3.10).
