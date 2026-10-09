@@ -160,4 +160,3 @@ su score, si se envió al LLM y cómo se citó (por ejemplo, 0.7011 para *Distil
 - El corpus son abstracts, no textos completos, por lo que las definiciones de términos técnicos suelen faltar; el
   sistema lo declara en «Lo que las referencias no cubren».
 - Las preguntas en español contra abstracts en inglés dependen sobre todo de la recuperación densa y del reranker.
-- La respuesta es más lenta que en la primera versión (más chunks, respuesta más larga y verificación de oraciones).
