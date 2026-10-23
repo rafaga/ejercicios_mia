@@ -1,0 +1,8 @@
+estrategia,RMSE validación,± desv,comentario
+"1. Borrar filas incompletas, sin escalar",96.78,0.91,"Perder el 1 % de filas casi no cambia nada, pero sin escalar KNN rinde muy mal (≈ 97)."
+"2. Imputar con mediana, sin escalar",96.63,0.42,Imputar con mediana equivale a borrar en error: solo falta el 1 %. Conserva todas las filas y es más estable (± 0.42).
+3. + estandarizar,62.59,1.44,Estandarizar es el cambio con mayor efecto: el error baja unos 34 mil porque KNN deja de depender de la magnitud.
+4. + one-hot de ocean_proximity,61.2,0.86,Agregar one-hot de ocean_proximity baja otro ~1.4: la ubicación respecto al mar aporta información.
+"5. Como 4, pero con RobustScaler",61.29,1.02,RobustScaler da lo mismo que StandardScaler (diferencia dentro del ruido): los atípicos no pesan mucho aquí.
+"6. Como 4, pero imputando con KNNImputer",61.14,0.84,KNNImputer es la mejor por muy poco (diferencia menor que la desviación): no compensa mucho con solo 1 % faltante.
+"7. Como 4, con indicador de faltante",61.4,0.94,El indicador de faltante no ayuda (ligeramente peor): con MCAR la ausencia no contiene señal.
